@@ -1,0 +1,152 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "af408723-2652-4721-abb0-e0268c5df0a1",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Accuracy: 0.880225988700565\n",
+      "\n",
+      "Confusion Matrix:\n",
+      "[[572  29]\n",
+      " [ 77 207]]\n",
+      "\n",
+      "Classification Report:\n",
+      "              precision    recall  f1-score   support\n",
+      "\n",
+      "           0       0.88      0.95      0.92       601\n",
+      "           1       0.88      0.73      0.80       284\n",
+      "\n",
+      "    accuracy                           0.88       885\n",
+      "   macro avg       0.88      0.84      0.86       885\n",
+      "weighted avg       0.88      0.88      0.88       885\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Import libraries\n",
+    "import pandas as pd\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.metrics import (\n",
+    "    accuracy_score,\n",
+    "    confusion_matrix,\n",
+    "    classification_report\n",
+    ")\n",
+    "\n",
+    "# Load dataset\n",
+    "df = pd.read_csv(\"data.csv\", sep=\";\")\n",
+    "\n",
+    "# Create binary target:\n",
+    "# 1 = At Risk (Dropout)\n",
+    "# 0 = Not At Risk (Graduate or Enrolled)\n",
+    "df[\"At_Risk\"] = (df[\"Target\"] == \"Dropout\").astype(int)\n",
+    "\n",
+    "# Features and target\n",
+    "X = df.drop(columns=[\"Target\", \"At_Risk\"])\n",
+    "y = df[\"At_Risk\"]\n",
+    "\n",
+    "# Train-test split\n",
+    "X_train, X_test, y_train, y_test = train_test_split(\n",
+    "    X,\n",
+    "    y,\n",
+    "    test_size=0.20,\n",
+    "    random_state=42,\n",
+    "    stratify=y\n",
+    ")\n",
+    "\n",
+    "# Random Forest model\n",
+    "rf_model = RandomForestClassifier(\n",
+    "    n_estimators=200,\n",
+    "    random_state=42,\n",
+    "    class_weight=\"balanced\"\n",
+    ")\n",
+    "\n",
+    "# Train model\n",
+    "rf_model.fit(X_train, y_train)\n",
+    "\n",
+    "# Predictions\n",
+    "y_pred = rf_model.predict(X_test)\n",
+    "\n",
+    "# Evaluation\n",
+    "print(\"Accuracy:\", accuracy_score(y_test, y_pred))\n",
+    "\n",
+    "print(\"\\nConfusion Matrix:\")\n",
+    "print(confusion_matrix(y_test, y_pred))\n",
+    "\n",
+    "print(\"\\nClassification Report:\")\n",
+    "print(classification_report(y_test, y_pred))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "dc3f5925-c1e9-4f3e-a371-5dd78b45fb7a",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Curricular units 2nd sem (approved)       0.165905\n",
+      "Curricular units 2nd sem (grade)          0.109602\n",
+      "Curricular units 1st sem (approved)       0.086841\n",
+      "Curricular units 1st sem (grade)          0.070432\n",
+      "Tuition fees up to date                   0.053919\n",
+      "Age at enrollment                         0.041683\n",
+      "Admission grade                           0.038222\n",
+      "Previous qualification (grade)            0.034674\n",
+      "Curricular units 2nd sem (evaluations)    0.034438\n",
+      "Course                                    0.030205\n",
+      "dtype: float64\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "feature_importance = pd.Series(\n",
+    "    rf_model.feature_importances_,\n",
+    "    index=X.columns\n",
+    ").sort_values(ascending=False)\n",
+    "\n",
+    "print(feature_importance.head(10))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9dfc9fff-08c9-4325-9986-6d685bc9e411",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python [conda env:base] *",
+   "language": "python",
+   "name": "conda-base-py"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
